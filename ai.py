@@ -41,7 +41,7 @@ class HeuristicAI:
         x,y = move
 
         x = str(unichr(x+97))
-        y = str(y+1)
+        y = str(self.board.hgt - y)
 
         return x+y
 
@@ -52,13 +52,17 @@ class HeuristicAI:
         return mv in [(0,0), (0, self.board.hgt), (self.board.wdt, 0), (self.board.wdt, self.board.hgt)]
 
     def filter_corners(self, ls):
-        return [mv for mv in ls if is_corner(mv)]
+        if not ls:
+            return []
+        return [mv for mv in ls if self.is_corner(mv)]
 
     def is_edge(self, mv):
-        return mv[0] in [0, self.board.wdt] or mv[1] in [0, self.board.hgt]
+        return mv[0] in [0, self.board.wdt-1] or mv[1] in [0, self.board.hgt-1]
 
     def filter_edges(self, ls):
-        return [mv for mv in ls if is_edge(ls)]
+        if not ls:
+            return []
+        return [mv for mv in ls if self.is_edge(mv)]
 
     def need(self, mv):
         if self.corners[0] and self.corners[1]:
@@ -74,11 +78,16 @@ class HeuristicAI:
             return y == self.board.height
 
     def filter_needed(self, ls):
-        return [mv for mv in ls if need(mv)]
+        if not ls:
+            return []
+        return [mv for mv in ls if self.need(mv)]
 
     #dtn is direction, dir is taken :(
-    def is_capture(self, mv, safe, first):
+    def is_capture(self, mv, safe, first, pdtn = None):
+        # 0 is x, 1 is y
         for dtn in self.directions:
+            if not first:
+                dtn = pdtn
             nm = (mv[0] + dtn[0], mv[1] + dtn[0])
 
             if not self.board.in_bounds(nm[0], nm[1]):
@@ -88,10 +97,13 @@ class HeuristicAI:
             elif self.board.get(nm[0], nm[1]) == self.side and (not first or safe):
                 return True
             elif self.board.get(nm[0], nm[1]) == self.opp_side:
-                if self.is_capture(nm, dtn, safe, False):
+                if self.is_capture(nm, safe, False, dtn):
                     return True
                 else:
                     continue
+
+            if not first:
+                break
 
     def check_captures(self, ls, safe):
         out = []
@@ -110,10 +122,16 @@ class HeuristicAI:
         return false # If you want a challenge, implement this to make the heuristic better
 
     def filter_odd_edges(self, ls, turn):
-        return [mv for mv in ls if is_odd_edge(mv)]
+        return [mv for mv in ls if self.is_odd_edge(mv)]
 
     def make_move(self):
-        legal_moves = [] #get empty squares from board
+        legal_moves = self.board.get_possible_moves() #get empty squares from board
+
+        #NOTE: this is a very bad ai right now. It just moves randomly
+        return random.choice(legal_moves)
+
+        # This is how you get different kinds of moves
+        # You may want to use this in your heuristic
         corners = self.filter_corners(legal_moves)
         edges = self.filter_edges(legal_moves)
         captures = self.filter_captures(legal_moves)
@@ -121,11 +139,3 @@ class HeuristicAI:
         edge_caps = self.filter_captures(edges)
         edge_safes = self.filter_safes(edges)
         edge_needs = self.filter_needed(edge_safes)
-
-        if corners:
-            out = r.choice(corners)
-
-            if (out[0] == 0 and out[1] == self.board.hgt):
-                this.corners[0] = True
-            elif (out[0] == 0 and out[1] == 0):
-                this.corners[1] = True

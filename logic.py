@@ -12,6 +12,14 @@ class Board:
         newBoard.empty_squares = self.empty_squares
         return newBoard
 
+    def get_possible_moves(self):
+        out = []
+        for x in range(self.wdt):
+            for y in range(self.hgt):
+                if self.get(x, y) == '.':
+                    out.append((x, y))
+        return out
+
     def get_children(self, turn):
         for x in range(self.wdt):
             for y in range(self.hgt):

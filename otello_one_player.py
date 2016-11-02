@@ -61,9 +61,10 @@ class Game():
             else:
                 action = list(action)
                 if len(action) == 2:
-                    rank = ord(action[0]) - 97
-                    file = self.board.hgt - ord(action[1]) + 48
-                    if self.board.place(rank, file, self.turn):
+                    file = ord(action[0]) - 97
+                    rank = self.board.hgt - ord(action[1]) + 48
+                    
+                    if self.board.place(file, rank, self.turn):
                         legal_move = True
                         if self.turn == "X":
                             self.turn = "O"
@@ -72,6 +73,11 @@ class Game():
 
                 if not legal_move:
                     self.output.illegal_move()
+                    if self.turn == "O":
+                        print action
+                        self.ai.board.draw()
+                        print self.ai.board.get_possible_moves()
+                        return
 
 if __name__ == "__main__":
     g = Game()
