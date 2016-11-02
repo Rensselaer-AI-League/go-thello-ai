@@ -3,11 +3,11 @@
  * The Big Bad GOTHELLO AI
  * Right now it sucks, but one day it will rule
  * TODO:
- *    Pattern matching to avoid holes like X...XX or XX.X.X
- *    Choose move based on some heuristic rather than randomly
- *        -Be more aggressive with edge placement
- *        -Be more safe with captures
- *    Remember moves as blocks, try to avoid touching a block to an enemy piece
+ *    Implement basic minimax
+ *    Implement Alpha-Beta pruning
+ *    Come up with a heuristic
+ *    Put it all together
+ *    Bonus: Prioritize moves that will cause pruning!
  */
  '''
 
@@ -41,6 +41,8 @@ class HeuristicAI:
         x,y = move
 
         x = str(unichr(x+97))
+
+        #IMPORTANT: the AI sees the board flipped vertically (because of sloppy code)
         y = str(self.board.hgt - y)
 
         return x+y
