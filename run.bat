@@ -1,2 +1,2 @@
-python otello_one_player.py
+python2 otello_one_player.py
 pause
